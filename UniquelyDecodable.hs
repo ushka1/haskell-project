@@ -1,3 +1,5 @@
+module UniquelyDecodable (uniquelyDecodable) where
+
 -- | 'isPrefixOf' function checks if a given string is a prefix of another string.
 isPrefixOf :: String -> String -> Bool
 isPrefixOf "" _ = True
