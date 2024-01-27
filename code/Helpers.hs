@@ -1,14 +1,21 @@
 module Helpers
-  ( intercalate,
-    asciiRange,
+  ( asciiRange,
     isPrefixOf,
+    intercalate,
+    splitByDelimiter,
     dedupe,
-    intersection,
     union,
+    intersection,
   )
 where
 
 -- -------------------- Strings --------------------
+
+-- | 'asciiRange' function returns a string of ASCII characters in the given range (inclusive).
+--
+-- > asciiRange 'a' 'i' = "abcdefghi"
+asciiRange :: Char -> Char -> String
+asciiRange a b = map toEnum (enumFromTo (fromEnum a) (fromEnum b))
 
 -- | 'isPrefixOf' function checks if a given string is a prefix of another string.
 isPrefixOf :: String -> String -> Bool
@@ -25,11 +32,18 @@ intercalate _ [] = ""
 intercalate _ [x] = x
 intercalate sep (x : xs) = x ++ sep ++ intercalate sep xs
 
--- | 'asciiRange' function returns a string of ASCII characters in the given range (inclusive).
+-- | 'splitByDelimiter' function splits a string by a given delimiter and returns a list of substrings.
 --
--- > asciiRange 'a' 'i' = "abcdefghi"
-asciiRange :: Char -> Char -> String
-asciiRange a b = map toEnum (enumFromTo (fromEnum a) (fromEnum b))
+-- > splitByDelimiter '-' "a-zA-Z" = ["a", "zA", "z"]
+splitByDelimiter :: Char -> String -> [String]
+splitByDelimiter _ "" = []
+splitByDelimiter del xs = splitByDelimiterHelper del xs "" []
+
+splitByDelimiterHelper :: Char -> String -> String -> [String] -> [String]
+splitByDelimiterHelper _ "" cur res = res ++ [cur]
+splitByDelimiterHelper del (x : xs) cur res
+  | x == del = splitByDelimiterHelper del xs "" (res ++ [cur])
+  | otherwise = splitByDelimiterHelper del xs (cur ++ [x]) res
 
 -- -------------------- Lists/Sets --------------------
 

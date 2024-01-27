@@ -1,48 +1,65 @@
 module RegexToWordSet (regexToWordSet) where
 
-import Helpers (asciiRange, dedupe, intercalate)
+import Helpers (asciiRange, dedupe, intercalate, splitByDelimiter)
 
 -- --------------------------------------------------
 
--- | 'expandSet' function converts a regex pattern that contains
---   character classes enclosed in square brackets to an equivalent pattern
---   that uses the or operator `|` instead.
---   For example, [abc] is equivalent to (a|b|c).
---   If the character class contains a range, such as [a-z], it expands it
---   to the list of all characters in that range, such as (a|b|...|z).
+-- | 'expandClass' function converts a regex pattern that contains
+-- character classes enclosed in square brackets to an equivalent pattern
+-- that uses the or `|` operator instead.
 --
--- > expandSet "abc[def]ghi" = "abc(d|e|f)ghi"
--- > expandSet "abc[d-f]ghi" = "abc(d|e|f)ghi"
--- > TODO: expandSet "a[b-def-h]i" = "a(b|c|d|e|f|g|h)i"
-expandSet :: String -> String
-expandSet xs = expandSetHelper xs 0 [] ""
+-- For example, [abc] is equivalent to (a|b|c). If the character class
+-- contains a range, such as [a-z], it expands it to the list of all characters
+-- in that range, such as (a|b|...|z).
+--
+-- > expandClass "abc[def]ghi" = "abc(d|e|f)ghi"
+-- > expandClass "abc[d-f]ghi" = "abc(d|e|f)ghi"
+-- > expandClass "a[b-def-h]i" = "a(b|c|d|e|f|g|h)i"
+expandClass :: String -> String
+expandClass xs = expandClassHelper xs 0 [] ""
 
-expandSetHelper ::
+expandClassHelper ::
   String -> -- regex pattern
-  Int -> -- state (0: outside of set `[...]`, 1: inside of set `[...]`)
-  String -> -- current set `[...]` content
+  Int -> -- state (0: outside of class `[...]`, 1: inside of class `[...]`)
+  String -> -- current class `[...]` content
   String -> -- result
   String
-expandSetHelper "" _ _ res = res
-expandSetHelper (x : xs) i cur res
-  | x == '[' = expandSetHelper xs 1 [] res
-  | x == ']' = expandSetHelper xs 0 [] (res ++ curFormatted)
-  | i == 1 = expandSetHelper xs 1 (cur ++ [x]) res
-  | i == 0 = expandSetHelper xs 0 [] (res ++ [x])
-  | otherwise = error "expandSetHelper: invalid input"
+expandClassHelper "" _ _ res = res
+expandClassHelper (x : xs) i cur res
+  | x == '[' = expandClassHelper xs 1 [] res
+  | x == ']' = expandClassHelper xs 0 [] (res ++ curFormatted)
+  | i == 1 = expandClassHelper xs 1 (cur ++ [x]) res
+  | i == 0 = expandClassHelper xs 0 [] (res ++ [x])
+  | otherwise = error "expandClassHelper: invalid input"
   where
-    curParsed =
-      if (length cur == 3) && (cur !! 1 == '-')
-        then asciiRange (head cur) (last cur)
-        else cur
-    curStringified = map (: []) curParsed
+    -- Operations on the current class `[...]` content.
+    curExpanded = expandRanges cur
+    curDeduped = dedupe curExpanded
+    curStringified = map (: []) curDeduped
     curFormatted = "(" ++ intercalate "|" curStringified ++ ")"
+
+-- | 'expandRanges' function converts a regex pattern that contains ranges to equivalent string
+-- that contains all characters in those ranges.
+--
+-- > expandRanges "a-z" = "abc...xyz"
+-- > expandRanges "a-z0-9" = "abc...xyz012...789"
+-- > expandRanges "012a-z345" = "012abc...xyz345"
+expandRanges :: String -> String
+expandRanges xs =
+  foldl
+    ( \acc x ->
+        if not (null acc)
+          then init acc ++ asciiRange (last acc) (head x) ++ tail x
+          else x
+    )
+    ""
+    (splitByDelimiter '-' xs)
 
 -- --------------------------------------------------
 
 -- | 'splitOr' function splits a regex pattern by the or operator `|`
---   and returns a list of subpatterns. It takes into account the level
---   of parentheses nesting and does not split inside a group.
+-- and returns a list of subpatterns. It takes into account the level
+-- of parentheses nesting and does not split inside a group.
 --
 -- > splitOr "ab|cd|ef" = ["ab", "cd", "ef"]
 -- > splitOr "a|b(c|d)" = ["a", "b(c|d)"]
@@ -71,8 +88,8 @@ hasOr xs = '|' `elem` xs
 -- --------------------------------------------------
 
 -- | 'splitGroup' function splits a regex pattern by the groups enclosed
---   in parentheses and returns a list of subpatterns. It takes into account
---   the level of parentheses nesting and does not split inside a group.
+-- in parentheses and returns a list of subpatterns. It takes into account
+-- the level of parentheses nesting and does not split inside a group.
 --
 -- > splitGroup "a(b|c)d" = ["a", "b|c", "d"]
 -- > splitGroup "a(b(c|d)e)f" = ["a", "b(c|d)e", "f"]
@@ -115,37 +132,62 @@ combineStringLists = foldr1 (\xs ys -> [x ++ y | x <- xs, y <- ys])
 
 -- | 'regexToWordSet' is a function that transforms a regex pattern into a set of words.
 --
+-- Supported regex operators:
+-- - `ab|cd` (or)
+-- - `(abc)` (group)
+-- - `[abc]` (character class)
+-- - `[a-z]` (character class with range)
+-- - `[a-zA-Z]` (character class with multiple ranges)
+--
+-- Currently not supported operators:
+-- - `a*` (star)
+-- - `a+` (plus)
+-- - `a?` (optional)
+-- - `a{m}` (quantifier)
+-- - `a{m,}` (quantifier)
+-- - `a{m,n}` (quantifier)
+--
 -- > regexToWordSet "a(b|c)d" = ["abd", "acd"]
 -- > regexToWordSet "a(b|c|e)d" = ["abd", "acd", "aed"]
+-- > regexToWordSet "a[b-d]e" = ["abe", "ace", "ade"]
 regexToWordSet :: String -> [String]
-regexToWordSet xs
+regexToWordSet xs = regexToWordSetHelper (expandClass xs)
+
+-- | 'regexToWordSetHelper' is a helper function for 'regexToWordSet' that
+-- transforms a regex pattern into a set of words handling "|" and "()" operators.
+--
+-- The flow of the function is as follows:
+-- 1. Split the regex pattern by `|` to get a list of disjointed subpatterns.
+-- 2. Split each subpattern by `(...)` to get a list of ungrouped subpatterns.
+-- 3. Recursively call `regexToWordSetHelper` on each ungrouped subpattern.
+-- 4. Combine the results of the recursive calls.
+-- 5. Dedupe and flatten the combined results.
+-- 6. Return the result.
+--
+-- Flow example 1:
+-- 1. regex pattern = "a|b(c|d)|e"
+-- 2. disjointed = ["a", "b(c|d)", "e"]
+-- 3. ungrouped = [["a"], ["b", "c|d"], ["e"]]
+-- 4. recursive = ... = [[["a"]], [["b"], ["c", "d"]], [["e"]]]
+-- 5. combined = [["a"], ["bc", "bd"], ["e"]]
+-- 6. result = ["a", "bc", "bd", "e"]
+--
+-- Flow example 2:
+-- 1. regex pattern = "(a|b)(c|d)"
+-- 2. disjointed = ["(a|b)(c|d)"]
+-- 3. ungrouped = [["a|b", "c|d"]]
+-- 4. recursive = ... = [[["a"], ["b"]], [["c"], ["d"]]]
+-- 5. combined = [["ac", "ad", "bc", "bd"]]
+-- 6. result = ["ac", "ad", "bc", "bd"]
+regexToWordSetHelper :: String -> [String]
+regexToWordSetHelper xs
   | null xs = []
   | not (hasOr xs) && not (hasGroups xs) = [xs]
   | otherwise = result
   where
+    -- Operations on the regex pattern.
     disjointed = splitOr xs
     ungrouped = map splitGroup disjointed
-    recursive = map (map regexToWordSet) ungrouped
+    recursive = map (map regexToWordSetHelper) ungrouped
     combined = map combineStringLists recursive
     result = dedupe $ foldr1 (++) combined
-
-{-
-  Example of regexToWordSet flow:
-  1. input = "a|b(c|d)|e"
-  2. disjointed = ["a", "b(c|d)", "e"]
-  3. ungrouped = [["a"], ["b", "c|d"], ["e"]]
-  4. recursive = ... = [[["a"]], [["b"], ["c", "d"]], [["e"]]]
-  5. combined = [["a"], ["bc", "bd"], ["e"]]
-  6. result = ["a", "bc", "bd", "e"]
-
-  Example of regexToWordSet flow:
-  1. input = "(a|b)(c|d)"
-  2. disjointed = ["(a|b)(c|d)"]
-  3. ungrouped = [["a|b", "c|d"]]
-  4. recursive = ... = [[["a"], ["b"]], [["c"], ["d"]]]
-  5. combined = [["ac", "ad", "bc", "bd"]]
-  6. result = ["ac", "ad", "bc", "bd"]
--}
-
-regexToWordSetRunner :: String -> [String]
-regexToWordSetRunner xs = regexToWordSet (expandSet xs)

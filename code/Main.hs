@@ -3,5 +3,5 @@ import System.Environment
 main :: IO ()
 main = do
   args <- getArgs
-  let input = head args
-  putStrLn input
+  let regex = head args
+  putStrLn $ "Regex: " ++ regex
