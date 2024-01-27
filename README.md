@@ -14,7 +14,7 @@
 
 ## Usage
 
-In order to run the program, you need to have Haskell installed. Then, you can run the program with the following command:
+In order to run the program, you need to have Haskell installed. Then, you can run the program with the following command (you need to be in the `code` directory):
 
 ```bash
 runghc ./Main.hs <input>
