@@ -31,7 +31,7 @@ intercalate sep (x : xs) = x ++ sep ++ intercalate sep xs
 asciiRange :: Char -> Char -> String
 asciiRange a b = map toEnum (enumFromTo (fromEnum a) (fromEnum b))
 
--- -------------------- Lists --------------------
+-- -------------------- Lists/Sets --------------------
 
 -- | 'dedupe' function removes duplicate elements from a list (also preserving the original order).
 dedupe :: (Eq a) => [a] -> [a]
