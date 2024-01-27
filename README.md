@@ -1,4 +1,4 @@
-# Code
+# Uniquely Decodable Code
 
 ## Description
 
@@ -14,16 +14,45 @@
 
 ## Usage
 
-In order to run the program, you need to have Haskell installed. Then, you can run the program with the following command (you need to be in the `code` directory):
+To execute the program, ensure that [Haskell](https://www.haskell.org/) is installed on your system. Afterward, navigate to the `code` directory and initiate the program with:
 
 ```bash
-runghc ./Main.hs <input>
+cd code
+runghc ./Main.hs <regex>
 ```
 
-where `<input>` is a regular expression without asterisks. For example:
+where `<regex>` is a regular expression without asterisks. For example:
 
 ```bash
-runghc ./Main.hs "0|10|110|111"
-runghc ./Main.hs "0|10|010|101"
-runghc ./Main.hs "car|pet|carpet"
+runghc ./Main.hs "0|10|110|111" # True
+runghc ./Main.hs "0|10|010|101" # False
+runghc ./Main.hs "0|10|110|1110|11110" # True
+runghc ./Main.hs "1|011|01110|1110|10011" # False
 ```
+
+## Tests
+
+In order to run the tests, navigate to the `code` directory and execute the following commands:
+
+```bash
+cd code
+runghc ./RegexToWordSetTest.hs
+runghc ./UniquelyDecodableTest.hs
+```
+
+## Limitations
+
+Supported regex operators:
+
+- `ab|cd` (or)
+- `(abc)` (group)
+- `[abc]` (character class)
+- `[a-z]` (character class with range)
+- `[a-zA-Z]` (character class with multiple ranges)
+
+Currently not supported operators:
+
+- `a?` (optional)
+- `a{m}` (quantifier)
+- `a{m,}` (quantifier)
+- `a{m,n}` (quantifier)

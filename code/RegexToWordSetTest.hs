@@ -1,10 +1,8 @@
-module RegexToWordSetTest where
-
 import Helpers (qsort)
 import RegexToWordSet (regexToWordSet)
 
-runTests :: IO ()
-runTests = do
+main :: IO ()
+main = do
   let testCases =
         [ ("a|b|c", ["a", "b", "c"]),
           ("(a|b)cde", ["acde", "bcde"]),

@@ -140,8 +140,6 @@ combineStringLists = foldr1 (\xs ys -> [x ++ y | x <- xs, y <- ys])
 -- - `[a-zA-Z]` (character class with multiple ranges)
 --
 -- Currently not supported operators:
--- - `a*` (star)
--- - `a+` (plus)
 -- - `a?` (optional)
 -- - `a{m}` (quantifier)
 -- - `a{m,}` (quantifier)

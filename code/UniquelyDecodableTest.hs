@@ -1,9 +1,7 @@
-module UniquelyDecodableTest where
-
 import UniquelyDecodable (uniquelyDecodable)
 
-runTests :: IO ()
-runTests = do
+main :: IO ()
+main = do
   let testCases =
         [ -- Uniquely decodable test cases.
           (["0", "1"], True),

@@ -1,6 +1,8 @@
 {
   "cSpell.words": [
     "abcdefghi",
+    "acde",
+    "bcde",
     "csets",
     "dedupe",
     "Deduped",
@@ -10,9 +12,20 @@
     "gencn",
     "gsoee",
     "gsuf",
+    "qsort",
     "Sardinas",
     "sufc",
     "sufcn"
+  ],
+  "cSpell.ignorePaths": [
+    "package-lock.json",
+    "node_modules",
+    "vscode-extension",
+    ".git/objects",
+    ".vscode",
+    ".vscode-insiders",
+    "code/RegexToWordSetTest.hs",
+    "code/UniquelyDecodableTest.hs"
   ],
   "todo-tree.tree.scanMode": "workspace only"
 }
