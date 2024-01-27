@@ -15,6 +15,8 @@ generateSuffixes cFrom cTo =
       y `isPrefixOf` x
   ]
 
+-- --------------------------------------------------
+
 -- | 'generateCn' function generates a C_{n} set from a given C set.
 generateCn :: [String] -> Int -> [String]
 generateCn c 0 = dedupe c

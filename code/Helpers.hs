@@ -8,6 +8,14 @@ module Helpers
   )
 where
 
+-- -------------------- Strings --------------------
+
+-- | 'isPrefixOf' function checks if a given string is a prefix of another string.
+isPrefixOf :: String -> String -> Bool
+isPrefixOf "" _ = True
+isPrefixOf _ "" = False
+isPrefixOf (x : xs) (y : ys) = x == y && isPrefixOf xs ys
+
 -- | 'intercalate' function inserts a string between every element of a list and concatenates the result.
 --
 -- > intercalate "|" ["a", "b", "c"] = "a|b|c"
@@ -23,15 +31,7 @@ intercalate sep (x : xs) = x ++ sep ++ intercalate sep xs
 asciiRange :: Char -> Char -> String
 asciiRange a b = map toEnum (enumFromTo (fromEnum a) (fromEnum b))
 
--- --------------------------------------------------
-
--- | 'isPrefixOf' function checks if a given string is a prefix of another string.
-isPrefixOf :: String -> String -> Bool
-isPrefixOf "" _ = True
-isPrefixOf _ "" = False
-isPrefixOf (x : xs) (y : ys) = x == y && isPrefixOf xs ys
-
--- --------------------------------------------------
+-- -------------------- Lists --------------------
 
 -- | 'dedupe' function removes duplicate elements from a list (also preserving the original order).
 dedupe :: (Eq a) => [a] -> [a]
