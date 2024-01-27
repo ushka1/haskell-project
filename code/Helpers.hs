@@ -6,6 +6,7 @@ module Helpers
     dedupe,
     union,
     intersection,
+    qsort,
   )
 where
 
@@ -47,9 +48,10 @@ splitByDelimiterHelper del (x : xs) cur res
 
 -- -------------------- Lists/Sets --------------------
 
--- | 'dedupe' function removes duplicate elements from a list (also preserving the original order).
+-- | 'dedupe' function removes duplicate elements from a list also preserving the original order.
 dedupe :: (Eq a) => [a] -> [a]
-dedupe = reverse . foldr (\x acc -> if x `elem` acc then acc else x : acc) []
+dedupe [] = []
+dedupe (x : xs) = x : dedupe (filter (/= x) xs)
 
 -- | 'union' function returns the union of two lists.
 union :: (Eq a) => [a] -> [a] -> [a]
@@ -58,3 +60,8 @@ union xs ys = dedupe (xs ++ ys)
 -- | 'intersection' function returns the intersection of two lists.
 intersection :: (Eq a) => [a] -> [a] -> [a]
 intersection xs ys = [x | x <- xs, x `elem` ys]
+
+-- | 'qsort' function sorts a list using the quicksort algorithm.
+qsort :: (Ord a) => [a] -> [a]
+qsort [] = []
+qsort (x : xs) = qsort [a | a <- xs, a < x] ++ [x] ++ qsort [b | b <- xs, b >= x]
