@@ -1,5 +1,6 @@
 {
   "cSpell.words": [
+    "abcdefghi",
     "csets",
     "dedupe",
     "Deduped",
@@ -11,5 +12,6 @@
     "gsuf",
     "sufc",
     "sufcn"
-  ]
+  ],
+  "todo-tree.tree.scanMode": "workspace only"
 }

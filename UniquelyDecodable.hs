@@ -1,22 +1,6 @@
 module UniquelyDecodable (uniquelyDecodable) where
 
--- | 'isPrefixOf' function checks if a given string is a prefix of another string.
-isPrefixOf :: String -> String -> Bool
-isPrefixOf "" _ = True
-isPrefixOf _ "" = False
-isPrefixOf (x : xs) (y : ys) = x == y && isPrefixOf xs ys
-
--- | 'dedupe' function removes duplicate elements from a list.
-dedupe :: (Eq a) => [a] -> [a]
-dedupe = foldr (\x acc -> if x `elem` acc then acc else x : acc) []
-
--- | 'union' function returns the union of two lists.
-union :: (Eq a) => [a] -> [a] -> [a]
-union xs ys = dedupe (xs ++ ys)
-
--- | 'intersection' function returns the intersection of two lists.
-intersection :: (Eq a) => [a] -> [a] -> [a]
-intersection xs ys = [x | x <- xs, x `elem` ys]
+import Helpers (dedupe, intersection, isPrefixOf, union)
 
 -- --------------------------------------------------
 

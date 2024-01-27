@@ -1,22 +1,16 @@
--- | intercalate "|" ["a", "b", "c"] = "a|b|c"
--- | intercalate "-*-" ["00", "00", "00"] = "00-*-00-*-00"
-intercalate :: String -> [String] -> String
-intercalate _ [] = ""
-intercalate _ [x] = x
-intercalate sep (x : xs) = x ++ sep ++ intercalate sep xs
-
--- | asciiRange 'a' 'g' = "abcdefg"
-asciiRange :: Char -> Char -> String
-asciiRange a b = map toEnum (enumFromTo (fromEnum a) (fromEnum b))
+import Helpers (asciiRange, intercalate)
 
 -- --------------------------------------------------
 
--- | convertAnyOfToOr "abc[def]ghi" = "abc(d|e|f)ghi"
--- | convertAnyOfToOr "abc[d-f]ghi" = "abc(d|e|f)ghi"
--- | TODO: convertAnyOfToOr "a[b-def-h]i" = "a(b|c|d|e|f|g|h)i"
+-- | 'convertAnyOfToOr' function ...
+--
+-- > convertAnyOfToOr "abc[def]ghi" = "abc(d|e|f)ghi"
+-- > convertAnyOfToOr "abc[d-f]ghi" = "abc(d|e|f)ghi"
+-- > TODO: convertAnyOfToOr "a[b-def-h]i" = "a(b|c|d|e|f|g|h)i"
 convertAnyOfToOr :: String -> String
 convertAnyOfToOr xs = convertAnyOfToOrHelper xs 0 [] ""
 
+-- | Print an identifier' documentation.
 convertAnyOfToOrHelper ::
   String -> -- input
   Int -> -- state (0: outside of [], 1: inside of [])
