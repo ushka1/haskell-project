@@ -5,7 +5,7 @@ import UniquelyDecodable (uniquelyDecodable)
 runTests :: IO ()
 runTests = do
   let testCases =
-        [ -- uniquely decodable
+        [ -- Uniquely decodable test cases.
           (["0", "1"], True),
           (["0", "01", "11"], True),
           (["0", "10", "110", "111"], True),
@@ -14,7 +14,7 @@ runTests = do
           (["0101", "1001", "10", "000", "11", "100"], True),
           (["car", "pet", "carpets"], True),
           (["cars", "pet", "carpet"], True),
-          -- not uniquely decodable
+          -- Not uniquely decodable test cases.
           (["0", "00"], False),
           (["0", "01", "10"], False),
           (["0", "10", "010", "101"], False),

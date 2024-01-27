@@ -1,3 +1,5 @@
+module RegexToWordSet (regexToWordSet) where
+
 import Helpers (asciiRange, intercalate)
 
 -- --------------------------------------------------
@@ -10,11 +12,10 @@ import Helpers (asciiRange, intercalate)
 convertAnyOfToOr :: String -> String
 convertAnyOfToOr xs = convertAnyOfToOrHelper xs 0 [] ""
 
--- | Print an identifier' documentation.
 convertAnyOfToOrHelper ::
   String -> -- input
-  Int -> -- state (0: outside of [], 1: inside of [])
-  String -> -- characters of current []
+  Int -> -- state (0: outside of `[]`, 1: inside of `[]`)
+  String -> -- characters of current `[]`
   String -> -- accumulator (result)
   String
 convertAnyOfToOrHelper "" i cur acc = acc
@@ -34,11 +35,19 @@ convertAnyOfToOrHelper (x : xs) i cur acc
 
 -- --------------------------------------------------
 
--- | splitByOr "ab|cd|ef(ghi|jkl)" = ["ab", "cd", "ef(ghi|jkl)"]
+-- | 'convertAnyOfToOr' function ...
+--
+-- > splitByOr "ab|cd|ef" = ["ab", "cd", "ef"]
+-- > splitByOr "a|b(c|d)" = ["a", "b(c|d)"]
 splitByOr :: String -> [String]
 splitByOr xs = reverse $ splitByOrHelper xs 0 "" []
 
-splitByOrHelper :: String -> Int -> String -> [String] -> [String]
+splitByOrHelper ::
+  String -> -- input
+  Int -> -- level of `()` nesting
+  String -> -- current string before `|`
+  [String] -> -- accumulator (result)
+  [String]
 splitByOrHelper "" i cur acc = cur : acc
 splitByOrHelper (x : xs) i cur acc
   | x == '(' = splitByOrHelper xs (i + 1) (x : cur) acc
@@ -50,3 +59,8 @@ splitByOrHelper (x : xs) i cur acc
 
 -- "a(b|c)d" -> ["a", "b|c", "d"] -> ["a", ["b", "c"], "d"] -> ["abd", "acd"]
 -- parseGroup :: [String] -> [String]
+
+-- --------------------------------------------------
+
+regexToWordSet :: String -> [String]
+regexToWordSet xs = []
