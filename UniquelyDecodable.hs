@@ -65,24 +65,3 @@ uniquelyDecodable :: [String] -> Bool
 uniquelyDecodable c = null (c `intersection` cinf)
   where
     cinf = generateCinf c
-
--- uniquelyDecodable ["0", "01", "11"]
--- True
-
--- uniquelyDecodable ["0", "01", "10"]
--- False
-
--- uniquelyDecodable ["0", "10", "110", "111"]
--- True
-
--- uniquelyDecodable ["0", "10", "010", "101"]
--- False
-
--- uniquelyDecodable ["0", "2", "10", "20", "11"]
--- False
-
--- uniquelyDecodable ["02", "12", "120", "20", "21"]
--- False
-
--- uniquelyDecodable ["car", "pet", "carpet"]
--- False
